@@ -13,15 +13,19 @@ public class Main {
         colRaster.setPixel(3, 2, new Col(0, 0, 255));
         colRaster.getPixel(3, 2).ifPresent(System.out::println);
         colRaster.setPixel(3, 2, new Col(0, 255, 0));
-        colRaster.getPixel(3, 2).ifPresent(System.out::println);
+        colRaster.getPixel(3, 2).ifPresent(System.out::println); // (0.0, 1.0, 0.0, 1.0)
         colRaster.clear();
         System.out.println();
 
         final ZBuffer zBuffer = new ZBuffer(colRaster);
         colRaster.getPixel(3, 2).ifPresent(System.out::println);
-        zBuffer.setPixel(3, 2, 0.5, new Col(0, 0, 255));
-        colRaster.getPixel(3, 2).ifPresent(System.out::println);
         zBuffer.setPixel(3, 2, 0.5, new Col(255, 0, 0));
+        colRaster.getPixel(3, 2).ifPresent(System.out::println);
+        zBuffer.setPixel(3, 2, 0.2, new Col(0, 0, 255));
+        colRaster.getPixel(3, 2).ifPresent(System.out::println);
+        zBuffer.setPixel(3, 2, 0.7, new Col(0, 255, 0));
+        colRaster.getPixel(3, 2).ifPresent(System.out::println); // should be (0.0, 0.0, 1.0, 1.0)
+
     }
 
 }
