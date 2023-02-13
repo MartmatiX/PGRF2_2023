@@ -20,16 +20,8 @@ public class ZBuffer {
         }
     }
 
-    /**
-     * Method cycles through entire panel and for each pixel sets its value in depthRaster to 1.0
-     * and for every pixel in colRaster to default color
-     */
     public void clear() {
-        for (int i = 0; i < depthRaster.getWidth(); i++) {
-            for (int j = 0; j < depthRaster.getHeight(); j++) {
-                depthRaster.setPixel(i, j, 1.0);
-                colRaster.setPixel(i, j, new Col(0, 0, 0));
-            }
-        }
+        depthRaster.clear();
+        colRaster.clear();
     }
 }

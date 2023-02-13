@@ -21,9 +21,9 @@ public class Main {
         colRaster.getPixel(3, 2).ifPresent(System.out::println);
         zBuffer.setPixel(3, 2, 0.5, new Col(255, 0, 0));
         colRaster.getPixel(3, 2).ifPresent(System.out::println);
-        zBuffer.setPixel(3, 2, 0.2, new Col(0, 0, 255));
+        zBuffer.setPixel(3, 2, 0.2, new Col(0, 255, 0));
         colRaster.getPixel(3, 2).ifPresent(System.out::println);
-        zBuffer.setPixel(3, 2, 0.7, new Col(0, 255, 0));
+        zBuffer.setPixel(3, 2, 0.7, new Col(0, 0, 255));
         colRaster.getPixel(3, 2).ifPresent(System.out::println); // should be (0.0, 0.0, 1.0, 1.0)
 
     }
