@@ -2,6 +2,8 @@ package raster_data;
 
 import transforms.Col;
 
+import java.util.Optional;
+
 public class ZBuffer {
 
     private final Raster<Col> colRaster;
@@ -14,6 +16,11 @@ public class ZBuffer {
     }
 
     public void setPixel(int x, int y, double z, Col pixel) {
+        Optional<Double> zOptional = depthRaster.getPixel(x, y);
+        Optional<Col> colOptional = colRaster.getPixel(x, y);
+        if (zOptional.isEmpty() || colOptional.isEmpty()) {
+            return;
+        }
         if (colRaster.isValidAddress(x, y) && depthRaster.isValidAddress(x, y)) {
             depthRaster.setPixel(x, y, z);
             colRaster.setPixel(x, y, pixel);
