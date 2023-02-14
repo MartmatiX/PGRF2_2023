@@ -71,6 +71,7 @@ public class Triangler {
 
     private void drawSecondHalf(Vertex a, Vertex b, Vertex c) {
         // TODO: finish this
+        // TODO: pokusit se sjednotit do jedne tridy s drawFirstHalf
     }
 
     public void draw(Vertex v1, Vertex v2, Vertex v3) {
