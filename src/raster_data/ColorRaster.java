@@ -47,4 +47,8 @@ public class ColorRaster implements Raster<Col> {
         g.setColor(new Color(background.getRGB()));
         g.fillRect(0, 0, getWidth(), getHeight());
     }
+
+    public void present(Graphics g) {
+        g.drawImage(image, 0, 0, null);
+    }
 }
