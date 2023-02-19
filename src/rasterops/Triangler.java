@@ -107,6 +107,7 @@ public class Triangler {
             int xMin = (int) vMin.getPosition().getX();
             double xMax = vMax.getPosition().getX();
 
+            xMin = Math.max(xMin, 0);
             xMax = Math.min(xMax, image.getWidth());
 
             for (int x = xMin; x < xMax; x++) {
@@ -126,8 +127,11 @@ public class Triangler {
             Vertex vMin = (v1.getPosition().getX() < v2.getPosition().getX()) ? v1 : v2;
             final Vertex vMax = (v1.getPosition().getX() < v2.getPosition().getX()) ? v2 : v1;
 
-            final int xMin = (int) vMin.getPosition().getX();
+            int xMin = (int) vMin.getPosition().getX();
             double xMax = vMax.getPosition().getX();
+
+            xMin = Math.max(xMin, 0);
+            xMax = Math.min(xMax, image.getWidth());
 
             for (int x = xMin; x < xMax; x++) {
                 final double t = (x - xMin) / (xMax - xMin);
