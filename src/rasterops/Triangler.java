@@ -109,13 +109,13 @@ public class Triangler {
             final Vertex vMax = (v1.getPosition().getX() < v2.getPosition().getX()) ? v2 : v1;
 
             int xMin = (int) vMin.getPosition().getX();
-            double xMax = vMax.getPosition().getX();
+            int xMax = (int) vMax.getPosition().getX();
 
             xMin = Math.max(xMin, 0);
             xMax = Math.min(xMax, image.getWidth());
 
             for (int x = xMin; x < xMax; x++) {
-                final double t = (x - xMin) / (xMax - xMin);
+                final double t = (x - xMin) / (double) (xMax - xMin);
                 final Vertex v = lerp.compute(vMin, vMax, t);
                 image.setPixel(x, y, v.getColor());
             }
@@ -132,13 +132,13 @@ public class Triangler {
             final Vertex vMax = (v1.getPosition().getX() < v2.getPosition().getX()) ? v2 : v1;
 
             int xMin = (int) vMin.getPosition().getX();
-            double xMax = vMax.getPosition().getX();
+            int xMax = (int) vMax.getPosition().getX();
 
             xMin = Math.max(xMin, 0);
             xMax = Math.min(xMax, image.getWidth());
 
             for (int x = xMin; x < xMax; x++) {
-                final double t = (x - xMin) / (xMax - xMin);
+                final double t = (x - xMin) / (double) (xMax - xMin);
                 final Vertex v = lerp.compute(vMin, vMax, t);
                 image.setPixel(x, y, v.getColor());
             }
