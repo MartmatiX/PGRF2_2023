@@ -20,10 +20,13 @@ public class ZBuffer {
         Optional<Col> colOptional = colRaster.getPixel(x, y);
         if (zOptional.isEmpty() || colOptional.isEmpty()) {
             return;
-        }
-        if (colRaster.isValidAddress(x, y) && depthRaster.isValidAddress(x, y)) {
-            depthRaster.setPixel(x, y, z);
-            colRaster.setPixel(x, y, pixel);
+        } else {
+            if (zOptional.get() < z) {
+                if (colRaster.isValidAddress(x, y) && depthRaster.isValidAddress(x, y)) {
+                    depthRaster.setPixel(x, y, z);
+                    colRaster.setPixel(x, y, pixel);
+                }
+            }
         }
     }
 
