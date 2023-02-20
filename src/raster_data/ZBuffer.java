@@ -21,7 +21,7 @@ public class ZBuffer {
         if (zOptional.isEmpty() || colOptional.isEmpty()) {
             return;
         }
-        if (zOptional.get() < z) {
+        if (zOptional.get() > z) {
             if (colRaster.isValidAddress(x, y) && depthRaster.isValidAddress(x, y)) {
                 depthRaster.setPixel(x, y, z);
                 colRaster.setPixel(x, y, pixel);
