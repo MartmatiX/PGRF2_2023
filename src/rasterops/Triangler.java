@@ -45,7 +45,7 @@ public class Triangler {
         }).toList();
     }
 
-    private void drawFirstHalf(Vertex a, Vertex b, Vertex c) { // TODO: orezani a sprava rasterizace, od 0 ne od a.getY a ne do konce ale do hranice okna image.getHeight() i guess
+    private void drawFirstHalf(Vertex a, Vertex b, Vertex c) {
         final int yMin = (int) a.getPosition().getY(); // TODO: zaroven vyresit neprosvitani hran
         final double yMax = b.getPosition().getY();
         for (int y = yMin; y < yMax; y++) {
@@ -89,6 +89,10 @@ public class Triangler {
         double yA = a.getPosition().getY();
         double yB = b.getPosition().getY();
         double yC = c.getPosition().getY();
+
+        yA = validateYCoordinate(yA);
+        yB = validateYCoordinate(yB);
+        yC = validateYCoordinate(yC);
 
         final double distanceYCA = yC - yA;
         final double distanceYCB = yC - yB;
@@ -140,6 +144,14 @@ public class Triangler {
             }
         }
     }
+
+    public double validateYCoordinate(double y) {
+        if (y > image.getHeight()) y = image.getHeight();
+        if (y < 0) y = 0;
+        return y;
+    }
+
+
 
     public void draw(Vertex v1, Vertex v2, Vertex v3) {
         final List<Vertex> ordered = sorted(v1, v2, v3);
