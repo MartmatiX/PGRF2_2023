@@ -1,5 +1,6 @@
 import object_data.Vertex;
 import raster_data.ColorRaster;
+import raster_data.ZBuffer;
 import rasterops.Triangler;
 import transforms.Col;
 import transforms.Vec3D;
@@ -8,21 +9,21 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.Serial;
 
 public class Canvas {
 
-    private final JFrame frame;
-    private final JPanel panel;
     private final ColorRaster img;
 
     public Canvas(int width, int height) {
-        frame = new JFrame();
+        JFrame frame = new JFrame();
         frame.setLayout(new BorderLayout());
         frame.setResizable(false);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         img = new ColorRaster(width, height, new Col(50, 50, 50));
-        panel = new JPanel() {
+        JPanel panel = new JPanel() {
+            @Serial
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -36,7 +37,7 @@ public class Canvas {
         frame.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ESCAPE){
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
                     System.exit(0);
                 }
             }
@@ -65,15 +66,15 @@ public class Canvas {
         Vertex v11 = new Vertex(new Vec3D(20, 160, 0.9), new Col(0, 0, 255));
         Vertex v12 = new Vertex(new Vec3D(250, 450, 0.6), new Col(0, 0, 255));
 
-        Triangler triangler = new Triangler(img);
+        Triangler triangler = new Triangler(new ZBuffer(img));
 
         // TEST TRIANGLER
-        triangler.draw(v1, v2, v3);
+//        triangler.draw(v1, v2, v3);
 
         // TEST ZBUFFER
-//        triangler.draw(v4, v5, v6);
-//        triangler.draw(v7, v8, v9);
-//        triangler.draw(v10, v11, v12);
+        triangler.draw(v4, v5, v6);
+        triangler.draw(v7, v8, v9);
+        triangler.draw(v10, v11, v12);
     }
 
     public static void main(String[] args) {

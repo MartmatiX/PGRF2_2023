@@ -3,6 +3,7 @@ package rasterops;
 import linalg.Lerp;
 import object_data.Vertex;
 import raster_data.Raster;
+import raster_data.ZBuffer;
 import transforms.Col;
 
 import java.util.List;
@@ -11,10 +12,12 @@ import java.util.stream.Stream;
 public class Triangler {
 
     private final Lerp lerp = new Lerp();
-    private final Raster<Col> image; // pozdeji ZBuffer
+    private final ZBuffer zBuffer; // pozdeji ZBuffer
+    private final Raster<Col> image;
 
-    public Triangler(Raster<Col> image) {
-        this.image = image;
+    public Triangler(ZBuffer zBuffer) {
+        this.zBuffer = zBuffer;
+        this.image = zBuffer.getColRaster();
     }
 
     private List<Vertex> sorted(Vertex v1, Vertex v2, Vertex v3) {
@@ -60,7 +63,7 @@ public class Triangler {
             for (int x = xMin; x < xMax; x++) {
                 final double t = (x - xMin) / (xMax - xMin);
                 final Vertex v = lerp.compute(vMin, vMax, t);
-                image.setPixel(x, y, v.getColor());
+                zBuffer.setPixel(x, y, v.getPosition().getZ(), v.getColor());
             }
         }
     }
@@ -80,7 +83,7 @@ public class Triangler {
             for (int x = xMin; x < xMax; x++) {
                 final double t = (x - xMin) / (xMax - xMin);
                 final Vertex v = lerp.compute(vMin, vMax, t);
-                image.setPixel(x, y, v.getColor());
+                zBuffer.setPixel(x, y, v.getPosition().getZ(), v.getColor());
             }
         }
     }
@@ -114,10 +117,10 @@ public class Triangler {
             xMin = Math.max(xMin, 0);
             xMax = Math.min(xMax, image.getWidth());
 
-            for (int x = xMin; x < xMax; x++) {
+            for (int x = xMin; x <= xMax; x++) {
                 final double t = (x - xMin) / (double) (xMax - xMin);
                 final Vertex v = lerp.compute(vMin, vMax, t);
-                image.setPixel(x, y, v.getColor());
+                zBuffer.setPixel(x, y, v.getPosition().getZ(), v.getColor());
             }
         }
 
@@ -137,10 +140,10 @@ public class Triangler {
             xMin = Math.max(xMin, 0);
             xMax = Math.min(xMax, image.getWidth());
 
-            for (int x = xMin; x < xMax; x++) {
+            for (int x = xMin; x <= xMax; x++) {
                 final double t = (x - xMin) / (double) (xMax - xMin);
                 final Vertex v = lerp.compute(vMin, vMax, t);
-                image.setPixel(x, y, v.getColor());
+                zBuffer.setPixel(x, y, v.getPosition().getZ(), v.getColor());
             }
         }
     }

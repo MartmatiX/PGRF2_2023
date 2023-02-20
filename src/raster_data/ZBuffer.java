@@ -12,7 +12,7 @@ public class ZBuffer {
 
     public ZBuffer(Raster<Col> colRaster) {
         this.colRaster = colRaster;
-        this.depthRaster = new DepthRaster(10, 10);
+        this.depthRaster = new DepthRaster(colRaster.getWidth(), colRaster.getHeight());
     }
 
     public void setPixel(int x, int y, double z, Col pixel) {
@@ -30,5 +30,9 @@ public class ZBuffer {
     public void clear() {
         depthRaster.clear();
         colRaster.clear();
+    }
+
+    public Raster<Col> getColRaster() {
+        return colRaster;
     }
 }
