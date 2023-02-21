@@ -12,8 +12,8 @@ import java.util.List;
 
 public class Renderer {
 
-    private final Liner liner = new Liner();
-    private final ZBuffer zBuffer = new ZBuffer();
+    private Liner liner;
+    private ZBuffer zBuffer;
 
     public void drawScene(Scene scene, Mat4 viewMat, Mat4 projectionMat) {
         final List<Solid> solids = scene.getSolids();
@@ -53,12 +53,11 @@ public class Renderer {
     private boolean isOutOfViewSpace(List<Vertex> vertices){
         final boolean allTooLeft = vertices.stream().allMatch(v -> v.getPosition().getX() < -v.getPosition().getW());
         final boolean allTooRight = vertices.stream().allMatch(v -> v.getPosition().getX() > v.getPosition().getW());
-        // TODO: 21.02.2023 Finish this
-        final boolean allTooUp = false;
-        final boolean allTooDown = false;
-        final boolean allTooClose = false;
-        final boolean allTooFar = false;
-        return false;
+        final boolean allTooUp = vertices.stream().allMatch(v -> v.getPosition().getY() < -v.getPosition().getW());
+        final boolean allTooDown = vertices.stream().allMatch(v -> v.getPosition().getY() > v.getPosition().getW());
+        final boolean allTooClose = vertices.stream().allMatch(v -> v.getPosition().getZ() < -v.getPosition().getW());
+        final boolean allTooFar = vertices.stream().allMatch(v -> v.getPosition().getZ() > v.getPosition().getW());
+        return allTooLeft && allTooRight && allTooUp && allTooDown && allTooClose && allTooFar;
     }
 
     private List<Vertex> clipZ(Vertex v1, Vertex v2){
