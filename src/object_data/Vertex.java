@@ -4,14 +4,13 @@ import linalg.Vectorizable;
 import transforms.Col;
 import transforms.Mat4;
 import transforms.Point3D;
-import transforms.Vec3D;
 
 public class Vertex implements Vectorizable<Vertex>, Transformable<Vertex>{
 
     private final Point3D position;
     private final Col color;
 
-    public Vertex(Point3D position, Col color) { // TODO: 21.02.2023 Change to Point3D -> fix all dependencies
+    public Vertex(Point3D position, Col color) {
         this.position = position;
         this.color = color;
     }
