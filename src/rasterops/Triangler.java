@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 public class Triangler {
 
     private final Lerp lerp = new Lerp();
-    private final ZBuffer zBuffer; // pozdeji ZBuffer
+    private final ZBuffer zBuffer;
     private final Raster<Col> image;
 
     public Triangler(ZBuffer zBuffer) {
@@ -49,7 +49,7 @@ public class Triangler {
     }
 
     private void drawFirstHalf(Vertex a, Vertex b, Vertex c) {
-        final int yMin = (int) a.getPosition().getY(); // TODO: zaroven vyresit neprosvitani hran
+        final int yMin = (int) a.getPosition().getY();
         final double yMax = b.getPosition().getY();
         for (int y = yMin; y < yMax; y++) {
             final double t1 = (y - a.getPosition().getY()) / (c.getPosition().getY() - a.getPosition().getY());
@@ -153,8 +153,6 @@ public class Triangler {
         if (y < 0) y = 0;
         return y;
     }
-
-
 
     public void draw(Vertex v1, Vertex v2, Vertex v3) {
         final List<Vertex> ordered = sorted(v1, v2, v3);
