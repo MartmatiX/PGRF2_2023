@@ -3,7 +3,7 @@ import raster_data.ColorRaster;
 import raster_data.ZBuffer;
 import rasterops.Triangler;
 import transforms.Col;
-import transforms.Vec3D;
+import transforms.Point3D;
 
 import javax.swing.*;
 import java.awt.*;
@@ -50,21 +50,21 @@ public class Canvas {
     }
 
     public void start() {
-        Vertex v1 = new Vertex(new Vec3D(50, 50, 0.5), new Col(255, 0, 0));
-        Vertex v2 = new Vertex(new Vec3D(150, 400, 0.5), new Col(0, 255, 0));
-        Vertex v3 = new Vertex(new Vec3D(250, 150, 0.5), new Col(0, 0, 255));
+        Vertex v1 = new Vertex(new Point3D(50, 50, 0.5), new Col(255, 0, 0));
+        Vertex v2 = new Vertex(new Point3D(150, 400, 0.5), new Col(0, 255, 0));
+        Vertex v3 = new Vertex(new Point3D(250, 150, 0.5), new Col(0, 0, 255));
 
-        Vertex v4 = new Vertex(new Vec3D(50, 400, 0.7), new Col(255, 0, 0));
-        Vertex v5 = new Vertex(new Vec3D(300, 100, 0.2), new Col(255, 0, 0));
-        Vertex v6 = new Vertex(new Vec3D(400, 300, 0.5), new Col(255, 0, 0));
+        Vertex v4 = new Vertex(new Point3D(50, 400, 0.7), new Col(255, 0, 0));
+        Vertex v5 = new Vertex(new Point3D(300, 100, 0.2), new Col(255, 0, 0));
+        Vertex v6 = new Vertex(new Point3D(400, 300, 0.5), new Col(255, 0, 0));
 
-        Vertex v7 = new Vertex(new Vec3D(300, 50, 0.7), new Col(0, 255, 0));
-        Vertex v8 = new Vertex(new Vec3D(50, 150, 0.3), new Col(0, 255, 0));
-        Vertex v9 = new Vertex(new Vec3D(400, 200, 0.2), new Col(0, 255, 0));
+        Vertex v7 = new Vertex(new Point3D(300, 50, 0.7), new Col(0, 255, 0));
+        Vertex v8 = new Vertex(new Point3D(50, 150, 0.3), new Col(0, 255, 0));
+        Vertex v9 = new Vertex(new Point3D(400, 200, 0.2), new Col(0, 255, 0));
 
-        Vertex v10 = new Vertex(new Vec3D(120, 100, 0.1), new Col(0, 0, 255));
-        Vertex v11 = new Vertex(new Vec3D(20, 160, 0.9), new Col(0, 0, 255));
-        Vertex v12 = new Vertex(new Vec3D(250, 450, 0.6), new Col(0, 0, 255));
+        Vertex v10 = new Vertex(new Point3D(120, 100, 0.1), new Col(0, 0, 255));
+        Vertex v11 = new Vertex(new Point3D(20, 160, 0.9), new Col(0, 0, 255));
+        Vertex v12 = new Vertex(new Point3D(250, 450, 0.6), new Col(0, 0, 255));
 
         Triangler triangler = new Triangler(new ZBuffer(img));
 
