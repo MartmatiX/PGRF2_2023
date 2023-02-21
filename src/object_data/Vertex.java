@@ -40,7 +40,8 @@ public class Vertex implements Vectorizable<Vertex>, Transformable<Vertex>{
 
     @Override
     public Vertex dehomog() {
-        return null; // TODO: 21.02.2023 Finish this
+        double w = this.position.getW();
+        return new Vertex(new Point3D(this.position.getX() / w, this.position.getY() / w, this.position.getZ() / w, 1), this.color);
     }
 
     @Override
