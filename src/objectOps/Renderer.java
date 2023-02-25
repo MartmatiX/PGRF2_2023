@@ -55,9 +55,9 @@ public class Renderer {
         final boolean allTooRight = vertices.stream().allMatch(v -> v.getPosition().getX() > v.getPosition().getW());
         final boolean allTooUp = vertices.stream().allMatch(v -> v.getPosition().getY() < -v.getPosition().getW());
         final boolean allTooDown = vertices.stream().allMatch(v -> v.getPosition().getY() > v.getPosition().getW());
-        final boolean allTooClose = vertices.stream().allMatch(v -> v.getPosition().getZ() < -v.getPosition().getW());
+        final boolean allTooClose = vertices.stream().allMatch(v -> v.getPosition().getZ() < 0);
         final boolean allTooFar = vertices.stream().allMatch(v -> v.getPosition().getZ() > v.getPosition().getW());
-        return allTooLeft && allTooRight && allTooUp && allTooDown && allTooClose && allTooFar;
+        return allTooLeft || allTooRight || allTooUp || allTooDown || allTooClose || allTooFar;
     }
 
     private List<Vertex> clipZ(Vertex v1, Vertex v2){
