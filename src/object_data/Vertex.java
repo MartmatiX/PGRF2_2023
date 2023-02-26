@@ -5,7 +5,7 @@ import transforms.Col;
 import transforms.Mat4;
 import transforms.Point3D;
 
-public class Vertex implements Vectorizable<Vertex>, Transformable<Vertex>{
+public class Vertex implements Vectorizable<Vertex>, Transformable<Vertex> {
 
     private final Point3D position;
     private final Col color;
@@ -35,7 +35,7 @@ public class Vertex implements Vectorizable<Vertex>, Transformable<Vertex>{
 
     @Override
     public Vertex transformed(Mat4 transformation) {
-        return this; // TODO: 21.02.2023 Finish this
+        return new Vertex(position.mul(transformation), color);
     }
 
     @Override
@@ -46,6 +46,6 @@ public class Vertex implements Vectorizable<Vertex>, Transformable<Vertex>{
 
     @Override
     public Vertex toViewPort(int width, int height) {
-        return null; // TODO: 21.02.2023 Finish this, transformace z -1 do 1 do souradnic x, y
+        return new Vertex(new Point3D(Math.round((position.getX() + 1) / 2 * (width - 1)), Math.round((1 - (position.getY() + 1) / 2) * (height - 1)), position.getZ()), color);
     }
 }
