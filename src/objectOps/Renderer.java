@@ -61,11 +61,10 @@ public class Renderer {
     }
 
     private List<Vertex> clipZ(Vertex v1, Vertex v2){
-        // TODO: 21.02.2023 Rewrite and finish this
         return List.of(v1, v2);
     }
 
-    private List<Vertex> clipZ(Vertex v1, Vertex v2, Vertex v3){ // TODO: 21.02.2023 Will be done next class
+    private List<Vertex> clipZ(Vertex v1, Vertex v2, Vertex v3){
         return List.of(v1, v2, v3);
     }
 
