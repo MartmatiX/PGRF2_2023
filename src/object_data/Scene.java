@@ -3,6 +3,7 @@ package object_data;
 import transforms.Mat4;
 import transforms.Mat4Identity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Scene {
@@ -12,7 +13,8 @@ public class Scene {
     private List<Mat4> modelMats;
 
     public Scene() {
-
+        this.solids = new ArrayList<>();
+        this.modelMats = new ArrayList<>();
     }
 
     public List<Solid> getSolids() {

@@ -6,14 +6,23 @@ import object_data.Solid;
 import object_data.Vertex;
 import raster_data.ZBuffer;
 import rasterops.Liner;
+import rasterops.Triangler;
 import transforms.Mat4;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Renderer {
 
     private Liner liner;
     private ZBuffer zBuffer;
+    private Triangler triangler;
+
+    public Renderer(ZBuffer zBuffer) {
+        this.zBuffer = zBuffer;
+        this.liner = new Liner(zBuffer);
+        this.triangler = new Triangler(this.zBuffer);
+    }
 
     public void drawScene(Scene scene, Mat4 viewMat, Mat4 projectionMat) {
         final List<Solid> solids = scene.getSolids();
@@ -30,27 +39,37 @@ public class Renderer {
     public void drawSolid(Solid solid, Mat4 transformation) {
         final List<Vertex> vertices = solid.getVertices().stream().map(v -> v.transformed(transformation)).toList();
         final List<Integer> indices = solid.getIndices();
-        for (Part part : solid.getParts()){
-            switch (part.getTopology()){
+        for (Part part : solid.getParts()) {
+            switch (part.getTopology()) {
                 case LINE_LIST -> {
                     // for all lines
                     for (int i = part.getOffset(); i < part.getOffset() + part.getCount() * 2; i += 2) {
                         final Vertex v1 = vertices.get(indices.get(i));
                         final Vertex v2 = vertices.get(indices.get(i + 1));
-                        if (!isOutOfViewSpace(List.of(v1, v2))){
+                        if (!isOutOfViewSpace(List.of(v1, v2))) {
                             List<Vertex> clippedZ = clipZ(v1, v2);
-                            liner.draw(v1.dehomog().toViewPort(zBuffer.getWidth), v2.dehomog().toViewPort(zBuffer.getWidth)); // TODO: 21.02.2023 Finish this, add methods
+                            liner.draw(clippedZ.get(0).dehomog().toViewPort(zBuffer.getColRaster().getWidth(), zBuffer.getColRaster().getHeight()), clippedZ.get(1).dehomog().toViewPort(zBuffer.getColRaster().getWidth(), zBuffer.getColRaster().getHeight()));
                         }
                     }
                 }
                 case TRIANGLE_FAN -> {
-                    // TODO: 21.02.2023 Might finish this as well
+                    Vertex start = vertices.get(indices.get(part.getOffset()));
+                    Vertex end = vertices.get(indices.get(part.getOffset() + 1));
+                    int i = part.getOffset() + 2;
+                    for (; i < part.getOffset() + part.getCount(); i++) {
+                        Vertex current = vertices.get(indices.get(i));
+                        if (!isOutOfViewSpace(List.of(start, current)) || !isOutOfViewSpace(List.of(current, end))) {
+                            List<Vertex> clippedZ = clipZ(start, end, current);
+                            triangler.draw(clippedZ.get(0).dehomog().toViewPort(zBuffer.getColRaster().getWidth(), zBuffer.getColRaster().getHeight()), clippedZ.get(1).dehomog().toViewPort(zBuffer.getColRaster().getWidth(), zBuffer.getColRaster().getHeight()), clippedZ.get(2).dehomog().toViewPort(zBuffer.getColRaster().getWidth(), zBuffer.getColRaster().getHeight()));
+                            end = current;
+                        }
+                    }
                 }
             }
         }
     }
 
-    private boolean isOutOfViewSpace(List<Vertex> vertices){
+    private boolean isOutOfViewSpace(List<Vertex> vertices) {
         final boolean allTooLeft = vertices.stream().allMatch(v -> v.getPosition().getX() < -v.getPosition().getW());
         final boolean allTooRight = vertices.stream().allMatch(v -> v.getPosition().getX() > v.getPosition().getW());
         final boolean allTooUp = vertices.stream().allMatch(v -> v.getPosition().getY() < -v.getPosition().getW());
@@ -60,11 +79,11 @@ public class Renderer {
         return allTooLeft || allTooRight || allTooUp || allTooDown || allTooClose || allTooFar;
     }
 
-    private List<Vertex> clipZ(Vertex v1, Vertex v2){
+    private List<Vertex> clipZ(Vertex v1, Vertex v2) {
         return List.of(v1, v2);
     }
 
-    private List<Vertex> clipZ(Vertex v1, Vertex v2, Vertex v3){
+    private List<Vertex> clipZ(Vertex v1, Vertex v2, Vertex v3) {
         return List.of(v1, v2, v3);
     }
 
