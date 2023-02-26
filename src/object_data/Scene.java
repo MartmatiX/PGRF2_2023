@@ -1,6 +1,7 @@
 package object_data;
 
 import transforms.Mat4;
+import transforms.Mat4Identity;
 
 import java.util.List;
 
@@ -22,5 +23,14 @@ public class Scene {
         return modelMats;
     }
 
-    // TODO: 21.02.2023 metody pro dodelani solidu
+    public void addSolid(Solid solid) {
+        this.solids.add(solid);
+        this.modelMats.add(new Mat4Identity());
+    }
+
+    public void addSolid(Solid solid, Mat4 modelMat) {
+        this.solids.add(solid);
+        this.modelMats.add(modelMat);
+    }
+
 }
