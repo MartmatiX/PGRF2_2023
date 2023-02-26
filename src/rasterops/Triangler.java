@@ -93,10 +93,6 @@ public class Triangler {
         double yB = b.getPosition().getY();
         double yC = c.getPosition().getY();
 
-        yA = validateYCoordinate(yA);
-        yB = validateYCoordinate(yB);
-        yC = validateYCoordinate(yC);
-
         final double distanceYCA = yC - yA;
         final double distanceYCB = yC - yB;
         final double distanceYBA = yB - yA;
@@ -113,9 +109,6 @@ public class Triangler {
 
             int xMin = (int) vMin.getPosition().getX();
             int xMax = (int) vMax.getPosition().getX();
-
-            xMin = Math.max(xMin, 0);
-            xMax = Math.min(xMax, image.getWidth());
 
             for (int x = xMin; x <= xMax; x++) {
                 final double t = (x - xMin) / (double) (xMax - xMin);
@@ -137,21 +130,12 @@ public class Triangler {
             int xMin = (int) vMin.getPosition().getX();
             int xMax = (int) vMax.getPosition().getX();
 
-            xMin = Math.max(xMin, 0);
-            xMax = Math.min(xMax, image.getWidth());
-
             for (int x = xMin; x <= xMax; x++) {
                 final double t = (x - xMin) / (double) (xMax - xMin);
                 final Vertex v = lerp.compute(vMin, vMax, t);
                 zBuffer.setPixel(x, y, v.getPosition().getZ(), v.getColor());
             }
         }
-    }
-
-    public double validateYCoordinate(double y) {
-        if (y > image.getHeight()) y = image.getHeight();
-        if (y < 0) y = 0;
-        return y;
     }
 
     public void draw(Vertex v1, Vertex v2, Vertex v3) {
