@@ -1,5 +1,6 @@
 package objectOps;
 
+import linalg.Lerp;
 import object_data.Part;
 import object_data.Scene;
 import object_data.Solid;
@@ -17,6 +18,7 @@ public class Renderer {
     private Liner liner;
     private ZBuffer zBuffer;
     private Triangler triangler;
+    private Lerp lerp;
 
     public Renderer(ZBuffer zBuffer) {
         this.zBuffer = zBuffer;
@@ -53,10 +55,9 @@ public class Renderer {
                     }
                 }
                 case TRIANGLE_FAN -> {
-                    Vertex start = vertices.get(indices.get(part.getOffset()));
+                    final Vertex start = vertices.get(indices.get(part.getOffset()));
                     Vertex end = vertices.get(indices.get(part.getOffset() + 1));
-                    int i = part.getOffset() + 2;
-                    for (; i < part.getOffset() + part.getCount(); i++) {
+                    for (int i = part.getOffset() + 2; i < part.getOffset() + part.getCount(); i++) {
                         Vertex current = vertices.get(indices.get(i));
                         if (!isOutOfViewSpace(List.of(start, current)) || !isOutOfViewSpace(List.of(current, end))) {
                             List<Vertex> clippedZ = clipZ(start, end, current);
@@ -80,10 +81,18 @@ public class Renderer {
     }
 
     private List<Vertex> clipZ(Vertex v1, Vertex v2) {
+        final Vertex min = v1.getPosition().getZ() < v2.getPosition().getZ() ? v1 : v2;
+        final Vertex max = min == v1 ? v2 : v1;
+        if (min.getPosition().getZ() < 0){
+            final double t = (0 - min.getPosition().getZ()) / (max.getPosition().getZ() - min.getPosition().getZ());
+            final Vertex v = lerp.compute(min, max, t);
+            return List.of(v, max);
+        }
         return List.of(v1, v2);
     }
 
     private List<Vertex> clipZ(Vertex v1, Vertex v2, Vertex v3) {
+        // TODO: 28.02.2023 finish this
         return List.of(v1, v2, v3);
     }
 
