@@ -122,6 +122,18 @@ public class SceneRenderer {
             }
         });
 
+        final double ZOOM_MODIFIER = 1.2;
+        final double UNZOOM_MODIFIER = -1.2;
+
+        panel.addMouseWheelListener(e -> {
+            if (e.getWheelRotation() < 0){
+                camera = camera.move(camera.getViewVector().mul(ZOOM_MODIFIER));
+            } else {
+                camera = camera.move(camera.getViewVector().mul(UNZOOM_MODIFIER));
+            }
+            render();
+        });
+
         render();
     }
 
