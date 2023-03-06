@@ -14,6 +14,10 @@ import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Github: https://github.com/MartmatiX/PGRF2_2023
+ */
+
 public class SceneRenderer {
 
     private final JFrame frame;
@@ -40,6 +44,9 @@ public class SceneRenderer {
 
     private int selectedSolid = 1;
     private final ArrayList<Mat4Transl> solidMats = new ArrayList<>(List.of(arrowMat, prismMat, octahedronMat));
+
+    private Mat4RotXYZ spinningPrismMat = new Mat4RotXYZ(10, 10, 10);
+    private double gammaRotation = 1;
 
     public SceneRenderer(int width, int height) {
         frame = new JFrame();
@@ -96,8 +103,6 @@ public class SceneRenderer {
         zBuffer = new ZBuffer(img);
         renderer = new Renderer(zBuffer);
 
-        returnSolids();
-
         frame.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -114,7 +119,6 @@ public class SceneRenderer {
                     case KeyEvent.VK_O -> selectedSolid = 2;
                     case KeyEvent.VK_V -> {
                         isWired = !isWired;
-                        returnSolids();
                     }
                     case KeyEvent.VK_ESCAPE -> {
                         System.out.println("Goodbye!\n");
@@ -122,32 +126,24 @@ public class SceneRenderer {
                     }
                     case KeyEvent.VK_NUMPAD8 -> {
                         solidMats.set(selectedSolid, moveObject(1));
-                        returnSolids();
                     }
                     case KeyEvent.VK_NUMPAD6 -> {
                         solidMats.set(selectedSolid, moveObject(2));
-                        returnSolids();
                     }
                     case KeyEvent.VK_NUMPAD2 -> {
                         solidMats.set(selectedSolid, moveObject(3));
-                        returnSolids();
                     }
                     case KeyEvent.VK_NUMPAD4 -> {
                         solidMats.set(selectedSolid, moveObject(4));
-                        returnSolids();
                     }
                     case KeyEvent.VK_NUMPAD9 -> {
                         solidMats.set(selectedSolid, moveObject(9));
-                        returnSolids();
                     }
                     case KeyEvent.VK_NUMPAD7 -> {
                         solidMats.set(selectedSolid, moveObject(7));
-                        returnSolids();
                     }
                 }
-                render();
             }
-
         });
 
         panel.addMouseListener(new MouseAdapter() {
@@ -185,6 +181,24 @@ public class SceneRenderer {
         });
 
         render();
+
+        Runnable renderSpinningPrism = () -> {
+            spinningPrismMat = new Mat4RotXYZ(spinningPrismMat.get(3, 0), spinningPrismMat.get(3, 1), spinningPrismMat.get(3,2) + gammaRotation);
+            returnSolids();
+        };
+
+        Thread thread = new Thread(() -> {
+           while (true){
+               renderSpinningPrism.run();
+               gammaRotation += 0.01;
+               try {
+                   Thread.sleep(1000 / 60);
+               } catch (InterruptedException e) {
+                   throw new RuntimeException(e);
+               }
+           }
+        });
+        thread.start();
     }
 
     public void render() {
@@ -233,6 +247,9 @@ public class SceneRenderer {
 
         Octahedron octahedron = new Octahedron(isWired);
         scene.addSolid(octahedron, new Mat4Scale(14).mul(solidMats.get(2)));
+
+        Prism prismSpin = new Prism(isWired);
+        scene.addSolid(prismSpin, new Mat4Scale(10).mul(new Mat4Transl(0, 0, 0).mul(spinningPrismMat)));
 
         render();
     }
