@@ -18,7 +18,7 @@ public class Renderer {
     private Liner liner;
     private ZBuffer zBuffer;
     private Triangler triangler;
-    private Lerp lerp;
+    private Lerp lerp = new Lerp();
 
     public Renderer(ZBuffer zBuffer) {
         this.zBuffer = zBuffer;
