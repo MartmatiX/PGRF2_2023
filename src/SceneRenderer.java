@@ -63,6 +63,8 @@ public class SceneRenderer {
 
         JLabel controls = new JLabel("<html>"
                 + "Movement: WASD QE</br>"
+                + "Translate solid: 8624 79 </br>"
+                + "Look around: Left Mouse Button </br>"
                 + "Exit: ESC </br>"
                 + "</html>");
         controls.setForeground(new Color(255, 255, 255));
@@ -71,6 +73,8 @@ public class SceneRenderer {
         System.out.println("""
                 Controls:
                 Movement: WASD QE
+                Look around: Left Mouse Button
+                Translate solid: 8624 79
                 Exit: ESC
                 """);
 
@@ -178,22 +182,22 @@ public class SceneRenderer {
     public Mat4Transl moveObject(Mat4Transl originalMatrix, int direction){
         switch (direction){
             case 1 ->{
-                return new Mat4Transl(originalMatrix.get(3, 0), originalMatrix.get(3, 1), originalMatrix.get(3, 2) + 5);
+                return new Mat4Transl(originalMatrix.get(3, 0), originalMatrix.get(3, 1), originalMatrix.get(3, 2) + 1);
             }
             case 2 -> {
-                return new Mat4Transl(originalMatrix.get(3, 0), originalMatrix.get(3, 1) - 5, originalMatrix.get(3, 2));
+                return new Mat4Transl(originalMatrix.get(3, 0), originalMatrix.get(3, 1) - 1, originalMatrix.get(3, 2));
             }
             case 3 -> {
-                return new Mat4Transl(originalMatrix.get(3, 0), originalMatrix.get(3, 1), originalMatrix.get(3, 2) - 5);
+                return new Mat4Transl(originalMatrix.get(3, 0), originalMatrix.get(3, 1), originalMatrix.get(3, 2) - 1);
             }
             case 4 -> {
-                return new Mat4Transl(originalMatrix.get(3, 0), originalMatrix.get(3, 1) + 5, originalMatrix.get(3, 2));
+                return new Mat4Transl(originalMatrix.get(3, 0), originalMatrix.get(3, 1) + 1, originalMatrix.get(3, 2));
             }
             case 7 -> {
-                return new Mat4Transl(originalMatrix.get(3, 0) - 5, originalMatrix.get(3, 1), originalMatrix.get(3, 2));
+                return new Mat4Transl(originalMatrix.get(3, 0) - 1, originalMatrix.get(3, 1), originalMatrix.get(3, 2));
             }
             case 9 -> {
-                return new Mat4Transl(originalMatrix.get(3, 0) + 5, originalMatrix.get(3, 1), originalMatrix.get(3, 2));
+                return new Mat4Transl(originalMatrix.get(3, 0) + 1, originalMatrix.get(3, 1), originalMatrix.get(3, 2));
             }
             default -> {
                 return new Mat4Transl(0, 0, 0);
