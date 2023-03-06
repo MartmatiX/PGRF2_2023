@@ -77,7 +77,7 @@ public class SceneRenderer {
 
         scene.addSolid(new AxisRGB(), new Mat4Scale(2));
         scene.addSolid(new Arrow(), new Mat4Scale(10).mul(new Mat4Transl(1, 1, 1)));
-//        scene.addSolid(new Prism(), new Mat4Scale(10).mul(new Mat4Transl(1, 10, 1))); TODO: fix prism
+        scene.addSolid(new Prism(), new Mat4Scale(10).mul(new Mat4Transl(1, 10, 1)));
 
         frame.addKeyListener(new KeyAdapter() {
             @Override
