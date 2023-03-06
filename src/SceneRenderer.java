@@ -1,8 +1,5 @@
 import objectOps.Renderer;
-import object_data.Arrow;
-import object_data.AxisRGB;
-import object_data.Prism;
-import object_data.Scene;
+import object_data.*;
 import raster_data.ColorRaster;
 import raster_data.ZBuffer;
 import transforms.*;
@@ -37,10 +34,12 @@ public class SceneRenderer {
     private final AxisRGB axisRGB = new AxisRGB();
     private final Arrow arrow = new Arrow();
     private Prism prism = new Prism(isWired);
+    private Octahedron octahedron = new Octahedron(isWired);
 
     // solid matrix
     private Mat4Transl arrowMat = new Mat4Transl(1, 1, 1);
     private Mat4Transl prismMat = new Mat4Transl(1, 10, 1);
+    private Mat4Transl octahedronMat = new Mat4Transl(1, 10, 8);
 
     public SceneRenderer(int width, int height) {
         frame = new JFrame();
@@ -64,10 +63,11 @@ public class SceneRenderer {
         panel.setPreferredSize(new Dimension(width, height));
 
         JLabel controls = new JLabel("<html>"
-                + "Movement: WASD QE</br>"
-                + "Translate solid: 8624 79 </br>"
-                + "Look around: Left Mouse Button </br>"
-                + "Exit: ESC </br>"
+                + "Movement: WASD QE<br/>"
+                + "Translate solid: 8624 79 <br/>"
+                + "Look around: Left Mouse Button <br/>"
+                + "Wired models: V<br/>"
+                + "Exit: ESC <br/>"
                 + "</html>");
         controls.setForeground(new Color(255, 255, 255));
         panel.add(controls, BorderLayout.WEST);
@@ -77,6 +77,7 @@ public class SceneRenderer {
                 Movement: WASD QE
                 Look around: Left Mouse Button
                 Translate solid: 8624 79
+                Wired models: V
                 Exit: ESC
                 """);
 
@@ -89,9 +90,7 @@ public class SceneRenderer {
         zBuffer = new ZBuffer(img);
         renderer = new Renderer(zBuffer);
 
-        scene.addSolid(axisRGB, new Mat4Scale(2).mul(new Mat4Transl(0, 0, 0)));
-        scene.addSolid(arrow, new Mat4Scale(10).mul(new Mat4Transl(1, 1, 1)));
-        scene.addSolid(prism, new Mat4Scale(10).mul(prismMat));
+        returnSolids();
 
         frame.addKeyListener(new KeyAdapter() {
             @Override
@@ -217,6 +216,8 @@ public class SceneRenderer {
         scene.addSolid(arrow, new Mat4Scale(10).mul(arrowMat));
         prism = new Prism(isWired);
         scene.addSolid(prism, new Mat4Scale(10).mul(prismMat));
+        octahedron = new Octahedron(isWired);
+        scene.addSolid(octahedron, new Mat4Scale(14).mul(octahedronMat));
         render();
     }
 
