@@ -11,6 +11,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.Serial;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SceneRenderer {
 
@@ -30,16 +32,14 @@ public class SceneRenderer {
 
     private boolean isWired = false;
 
-    // solids
     private final AxisRGB axisRGB = new AxisRGB();
-    private final Arrow arrow = new Arrow();
-    private Prism prism = new Prism(isWired);
-    private Octahedron octahedron = new Octahedron(isWired);
 
-    // solid matrix
-    private Mat4Transl arrowMat = new Mat4Transl(1, 1, 1);
-    private Mat4Transl prismMat = new Mat4Transl(1, 10, 1);
-    private Mat4Transl octahedronMat = new Mat4Transl(1, 10, 8);
+    private final Mat4Transl arrowMat = new Mat4Transl(1, 1, 1);
+    private final Mat4Transl prismMat = new Mat4Transl(1, 10, 1);
+    private final Mat4Transl octahedronMat = new Mat4Transl(1, 10, 8);
+
+    private int selectedSolid = 1;
+    private final ArrayList<Mat4Transl> solidMats = new ArrayList<>(List.of(arrowMat, prismMat, octahedronMat));
 
     public SceneRenderer(int width, int height) {
         frame = new JFrame();
@@ -67,6 +67,9 @@ public class SceneRenderer {
                 + "Translate solid: 8624 79 <br/>"
                 + "Look around: Left Mouse Button <br/>"
                 + "Wired models: V<br/>"
+                + "Select Arrow: I"
+                + "Select Octahedron: O<br/>"
+                + "Select Prism: P<br/>"
                 + "Exit: ESC <br/>"
                 + "</html>");
         controls.setForeground(new Color(255, 255, 255));
@@ -78,6 +81,9 @@ public class SceneRenderer {
                 Look around: Left Mouse Button
                 Translate solid: 8624 79
                 Wired models: V
+                Select Arrow: I
+                Select Octahedron: O
+                Select Prism: P
                 Exit: ESC
                 """);
 
@@ -103,6 +109,9 @@ public class SceneRenderer {
                     case KeyEvent.VK_D -> camera = camera.right(CAMERA_SPEED);
                     case KeyEvent.VK_E -> camera = camera.forward(CAMERA_SPEED);
                     case KeyEvent.VK_Q -> camera = camera.backward(CAMERA_SPEED);
+                    case KeyEvent.VK_I -> selectedSolid = 0;
+                    case KeyEvent.VK_P -> selectedSolid = 1;
+                    case KeyEvent.VK_O -> selectedSolid = 2;
                     case KeyEvent.VK_V -> {
                         isWired = !isWired;
                         returnSolids();
@@ -112,27 +121,27 @@ public class SceneRenderer {
                         System.exit(0);
                     }
                     case KeyEvent.VK_NUMPAD8 -> {
-                        prismMat = moveObject(prismMat, 1);
+                        solidMats.set(selectedSolid, moveObject(1));
                         returnSolids();
                     }
                     case KeyEvent.VK_NUMPAD6 -> {
-                        prismMat = moveObject(prismMat, 2);
+                        solidMats.set(selectedSolid, moveObject(2));
                         returnSolids();
                     }
                     case KeyEvent.VK_NUMPAD2 -> {
-                        prismMat = moveObject(prismMat, 3);
+                        solidMats.set(selectedSolid, moveObject(3));
                         returnSolids();
                     }
                     case KeyEvent.VK_NUMPAD4 -> {
-                        prismMat = moveObject(prismMat, 4);
+                        solidMats.set(selectedSolid, moveObject(4));
                         returnSolids();
                     }
                     case KeyEvent.VK_NUMPAD9 -> {
-                        prismMat = moveObject(prismMat, 9);
+                        solidMats.set(selectedSolid, moveObject(9));
                         returnSolids();
                     }
                     case KeyEvent.VK_NUMPAD7 -> {
-                        prismMat = moveObject(prismMat, 7);
+                        solidMats.set(selectedSolid, moveObject(7));
                         returnSolids();
                     }
                 }
@@ -167,7 +176,7 @@ public class SceneRenderer {
         final double UNZOOM_MODIFIER = -1.2;
 
         panel.addMouseWheelListener(e -> {
-            if (e.getWheelRotation() < 0){
+            if (e.getWheelRotation() < 0) {
                 camera = camera.move(camera.getViewVector().mul(ZOOM_MODIFIER));
             } else {
                 camera = camera.move(camera.getViewVector().mul(UNZOOM_MODIFIER));
@@ -184,9 +193,11 @@ public class SceneRenderer {
         img.present(panel.getGraphics());
     }
 
-    public Mat4Transl moveObject(Mat4Transl originalMatrix, int direction){
-        switch (direction){
-            case 1 ->{
+    public Mat4Transl moveObject(int direction) {
+        Mat4Transl originalMatrix = solidMats.get(selectedSolid);
+
+        switch (direction) {
+            case 1 -> {
                 return new Mat4Transl(originalMatrix.get(3, 0), originalMatrix.get(3, 1), originalMatrix.get(3, 2) + 1);
             }
             case 2 -> {
@@ -213,11 +224,16 @@ public class SceneRenderer {
     public void returnSolids(){
         scene.clearScene();
         scene.addSolid(axisRGB, new Mat4Scale(2).mul(new Mat4Transl(0, 0, 0)));
-        scene.addSolid(arrow, new Mat4Scale(10).mul(arrowMat));
-        prism = new Prism(isWired);
-        scene.addSolid(prism, new Mat4Scale(10).mul(prismMat));
-        octahedron = new Octahedron(isWired);
-        scene.addSolid(octahedron, new Mat4Scale(14).mul(octahedronMat));
+
+        Arrow arrow = new Arrow(isWired);
+        scene.addSolid(arrow, new Mat4Scale(10).mul(solidMats.get(0)));
+
+        Prism prism = new Prism(isWired);
+        scene.addSolid(prism, new Mat4Scale(10).mul(solidMats.get(1)));
+
+        Octahedron octahedron = new Octahedron(isWired);
+        scene.addSolid(octahedron, new Mat4Scale(14).mul(solidMats.get(2)));
+
         render();
     }
 
