@@ -31,6 +31,14 @@ public class SceneRenderer {
 
     private Point2D mousePos;
 
+    // solids
+    private final AxisRGB axisRGB = new AxisRGB();
+    private final Arrow arrow = new Arrow();
+    private final Prism prism = new Prism();
+
+    // solid matrix
+    private Mat4Transl prismMat = new Mat4Transl(1, 10, 1);
+
 
     public SceneRenderer(int width, int height) {
         frame = new JFrame();
@@ -75,9 +83,9 @@ public class SceneRenderer {
         zBuffer = new ZBuffer(img);
         renderer = new Renderer(zBuffer);
 
-        scene.addSolid(new AxisRGB(), new Mat4Scale(2));
-        scene.addSolid(new Arrow(), new Mat4Scale(10).mul(new Mat4Transl(1, 1, 1)));
-        scene.addSolid(new Prism(), new Mat4Scale(10).mul(new Mat4Transl(1, 10, 1)));
+        scene.addSolid(axisRGB, new Mat4Scale(2));
+        scene.addSolid(arrow, new Mat4Scale(10).mul(new Mat4Transl(1, 1, 1)));
+        scene.addSolid(prism, new Mat4Scale(10).mul(prismMat));
 
         frame.addKeyListener(new KeyAdapter() {
             @Override
@@ -93,6 +101,30 @@ public class SceneRenderer {
                     case KeyEvent.VK_ESCAPE -> {
                         System.out.println("Goodbye!\n");
                         System.exit(0);
+                    }
+                    case KeyEvent.VK_NUMPAD8 -> {
+                        prismMat = moveObject(prismMat, 1);
+                        returnSolids();
+                    }
+                    case KeyEvent.VK_NUMPAD6 -> {
+                        prismMat = moveObject(prismMat, 2);
+                        returnSolids();
+                    }
+                    case KeyEvent.VK_NUMPAD2 -> {
+                        prismMat = moveObject(prismMat, 3);
+                        returnSolids();
+                    }
+                    case KeyEvent.VK_NUMPAD4 -> {
+                        prismMat = moveObject(prismMat, 4);
+                        returnSolids();
+                    }
+                    case KeyEvent.VK_NUMPAD9 -> {
+                        prismMat = moveObject(prismMat, 9);
+                        returnSolids();
+                    }
+                    case KeyEvent.VK_NUMPAD7 -> {
+                        prismMat = moveObject(prismMat, 7);
+                        returnSolids();
                     }
                 }
                 render();
@@ -141,6 +173,40 @@ public class SceneRenderer {
         zBuffer.clear();
         renderer.drawScene(scene, camera.getViewMatrix(), new Mat4PerspRH(Math.PI / 2, (double) zBuffer.getColRaster().getHeight() / zBuffer.getColRaster().getWidth(), 0.1, 200));
         img.present(panel.getGraphics());
+    }
+
+    public Mat4Transl moveObject(Mat4Transl originalMatrix, int direction){
+        switch (direction){
+            case 1 ->{
+                return new Mat4Transl(originalMatrix.get(3, 0), originalMatrix.get(3, 1), originalMatrix.get(3, 2) + 5);
+            }
+            case 2 -> {
+                return new Mat4Transl(originalMatrix.get(3, 0), originalMatrix.get(3, 1) - 5, originalMatrix.get(3, 2));
+            }
+            case 3 -> {
+                return new Mat4Transl(originalMatrix.get(3, 0), originalMatrix.get(3, 1), originalMatrix.get(3, 2) - 5);
+            }
+            case 4 -> {
+                return new Mat4Transl(originalMatrix.get(3, 0), originalMatrix.get(3, 1) + 5, originalMatrix.get(3, 2));
+            }
+            case 7 -> {
+                return new Mat4Transl(originalMatrix.get(3, 0) - 5, originalMatrix.get(3, 1), originalMatrix.get(3, 2));
+            }
+            case 9 -> {
+                return new Mat4Transl(originalMatrix.get(3, 0) + 5, originalMatrix.get(3, 1), originalMatrix.get(3, 2));
+            }
+            default -> {
+                return new Mat4Transl(0, 0, 0);
+            }
+        }
+    }
+
+    public void returnSolids(){
+        scene.clearScene();
+        scene.addSolid(axisRGB, new Mat4Scale(2));
+        scene.addSolid(arrow, new Mat4Scale(10).mul(new Mat4Transl(1, 1, 1)));
+        scene.addSolid(prism, new Mat4Scale(10).mul(prismMat));
+        render();
     }
 
     public static void main(String[] args) {

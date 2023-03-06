@@ -35,4 +35,9 @@ public class Scene {
         this.modelMats.add(modelMat);
     }
 
+    public void clearScene(){
+        this.solids = new ArrayList<>();
+        this.modelMats = new ArrayList<>();
+    }
+
 }
