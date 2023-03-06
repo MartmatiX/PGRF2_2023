@@ -1,5 +1,7 @@
 import objectOps.Renderer;
+import object_data.Arrow;
 import object_data.AxisRGB;
+import object_data.Prism;
 import object_data.Scene;
 import raster_data.ColorRaster;
 import raster_data.ZBuffer;
@@ -9,6 +11,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.Serial;
 
 public class SceneRenderer {
@@ -24,6 +28,8 @@ public class SceneRenderer {
 
     Camera camera = new Camera(new Vec3D(-10, 10, 5), 0, 0, 1, true);
     private final Double CAMERA_SPEED = 1d;
+
+    private Point2D mousePos;
 
 
     public SceneRenderer(int width, int height) {
@@ -49,6 +55,7 @@ public class SceneRenderer {
 
         JLabel controls = new JLabel("<html>"
                 + "Movement: WASD QE</br>"
+                + "Exit: ESC </br>"
                 + "</html>");
         controls.setForeground(new Color(255, 255, 255));
         panel.add(controls, BorderLayout.WEST);
@@ -56,6 +63,7 @@ public class SceneRenderer {
         System.out.println("""
                 Controls:
                 Movement: WASD QE
+                Exit: ESC
                 """);
 
         frame.add(panel, BorderLayout.CENTER);
@@ -67,7 +75,9 @@ public class SceneRenderer {
         zBuffer = new ZBuffer(img);
         renderer = new Renderer(zBuffer);
 
-        scene.addSolid(new AxisRGB(), new Mat4Scale(5));
+        scene.addSolid(new AxisRGB(), new Mat4Scale(2));
+        scene.addSolid(new Arrow(), new Mat4Scale(10).mul(new Mat4Transl(1, 1, 1)));
+//        scene.addSolid(new Prism(), new Mat4Scale(10).mul(new Mat4Transl(1, 10, 1))); TODO: fix prism
 
         frame.addKeyListener(new KeyAdapter() {
             @Override
@@ -89,6 +99,29 @@ public class SceneRenderer {
             }
 
         });
+
+        panel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                super.mousePressed(e);
+                mousePos = new Point2D(e.getX(), e.getY());
+                panel.addMouseMotionListener(new MouseAdapter() {
+                    @Override
+                    public void mouseDragged(MouseEvent f) {
+                        super.mouseDragged(f);
+                        double dx = f.getX() - mousePos.getX();
+                        double dy = f.getY() - mousePos.getY();
+
+                        camera = camera.addAzimuth(-(dx) * Math.PI / 360);
+                        camera = camera.addZenith(-(dy) * Math.PI / 360);
+
+                        mousePos = new Point2D(f.getX(), f.getY());
+                        render();
+                    }
+                });
+            }
+        });
+
         render();
     }
 
