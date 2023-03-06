@@ -31,14 +31,16 @@ public class SceneRenderer {
 
     private Point2D mousePos;
 
+    private boolean isWired = false;
+
     // solids
     private final AxisRGB axisRGB = new AxisRGB();
     private final Arrow arrow = new Arrow();
-    private final Prism prism = new Prism();
+    private Prism prism = new Prism(isWired);
 
     // solid matrix
+    private Mat4Transl arrowMat = new Mat4Transl(1, 1, 1);
     private Mat4Transl prismMat = new Mat4Transl(1, 10, 1);
-
 
     public SceneRenderer(int width, int height) {
         frame = new JFrame();
@@ -87,7 +89,7 @@ public class SceneRenderer {
         zBuffer = new ZBuffer(img);
         renderer = new Renderer(zBuffer);
 
-        scene.addSolid(axisRGB, new Mat4Scale(2));
+        scene.addSolid(axisRGB, new Mat4Scale(2).mul(new Mat4Transl(0, 0, 0)));
         scene.addSolid(arrow, new Mat4Scale(10).mul(new Mat4Transl(1, 1, 1)));
         scene.addSolid(prism, new Mat4Scale(10).mul(prismMat));
 
@@ -102,6 +104,10 @@ public class SceneRenderer {
                     case KeyEvent.VK_D -> camera = camera.right(CAMERA_SPEED);
                     case KeyEvent.VK_E -> camera = camera.forward(CAMERA_SPEED);
                     case KeyEvent.VK_Q -> camera = camera.backward(CAMERA_SPEED);
+                    case KeyEvent.VK_V -> {
+                        isWired = !isWired;
+                        returnSolids();
+                    }
                     case KeyEvent.VK_ESCAPE -> {
                         System.out.println("Goodbye!\n");
                         System.exit(0);
@@ -207,8 +213,9 @@ public class SceneRenderer {
 
     public void returnSolids(){
         scene.clearScene();
-        scene.addSolid(axisRGB, new Mat4Scale(2));
-        scene.addSolid(arrow, new Mat4Scale(10).mul(new Mat4Transl(1, 1, 1)));
+        scene.addSolid(axisRGB, new Mat4Scale(2).mul(new Mat4Transl(0, 0, 0)));
+        scene.addSolid(arrow, new Mat4Scale(10).mul(arrowMat));
+        prism = new Prism(isWired);
         scene.addSolid(prism, new Mat4Scale(10).mul(prismMat));
         render();
     }
