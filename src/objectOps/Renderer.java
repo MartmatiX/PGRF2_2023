@@ -10,8 +10,10 @@ import rasterops.Liner;
 import rasterops.Triangler;
 import transforms.Mat4;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Renderer {
 
@@ -83,7 +85,7 @@ public class Renderer {
     private List<Vertex> clipZ(Vertex v1, Vertex v2) {
         final Vertex min = v1.getPosition().getZ() < v2.getPosition().getZ() ? v1 : v2;
         final Vertex max = min == v1 ? v2 : v1;
-        if (min.getPosition().getZ() < 0){
+        if (min.getPosition().getZ() < 0) {
             final double t = (0 - min.getPosition().getZ()) / (max.getPosition().getZ() - min.getPosition().getZ());
             final Vertex v = lerp.compute(min, max, t);
             return List.of(v, max);
@@ -92,7 +94,32 @@ public class Renderer {
     }
 
     private List<Vertex> clipZ(Vertex v1, Vertex v2, Vertex v3) {
-        // TODO: 28.02.2023 finish this
+        List<Vertex> sorted = Stream.of(v1, v2, v3).sorted(Comparator.comparingDouble(value -> value.getPosition().getZ())).toList();
+
+        final double t1;
+        final double t2;
+        final Vertex v1R;
+        final Vertex v2R;
+
+        switch ((int) sorted.stream().filter(vertex -> vertex.getPosition().getZ() < 0).count()) {
+            case 1 -> {
+                Vertex out = sorted.get(0);
+                t1 = -out.getPosition().getZ() / (sorted.get(1).getPosition().getZ() - out.getPosition().getZ());
+                t2 = -out.getPosition().getZ() / (sorted.get(2).getPosition().getZ() - out.getPosition().getZ());
+                v1R = lerp.compute(out, sorted.get(1), t1);
+                v2R = lerp.compute(out, sorted.get(2), t2);
+                return List.of(v1R, sorted.get(1), sorted.get(2), v1R, v2R, sorted.get(2));
+            }
+            case 2 -> {
+                Vertex in = sorted.get(2);
+                t1 = -sorted.get(0).getPosition().getZ() / (in.getPosition().getZ() - sorted.get(0).getPosition().getZ());
+                t2 = -sorted.get(1).getPosition().getZ() / (in.getPosition().getZ() - sorted.get(1).getPosition().getZ());
+                v1R = lerp.compute(sorted.get(0), in, t1);
+                v2R = lerp.compute(sorted.get(1), in, t2);
+                return List.of(v1R, v2R, sorted.get(2));
+            }
+        }
+
         return List.of(v1, v2, v3);
     }
 
