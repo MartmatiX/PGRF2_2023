@@ -46,13 +46,14 @@ public class SceneRenderer {
     private final Mat4Transl bezierMat = new Mat4Transl(0, 10, -3); // 3
     private final Mat4Transl fergusonMat = new Mat4Transl(0, 0, -3); // 4
     private final Mat4Transl coonsMat = new Mat4Transl(0, -10, -3); // 5
+    private final Mat4Transl cubeMat = new Mat4Transl(0, -10, 0); // 6
 
     private final Mat4RotXYZ arrowSpinMat = new Mat4RotXYZ(0, 0, 0);
     private final Mat4RotXYZ prismSpinMat = new Mat4RotXYZ(0, 0, 0);
     private final Mat4RotXYZ octahedronSpinMat = new Mat4RotXYZ(0, 0, 0);
 
     private int selectedSolid = 1;
-    private final ArrayList<Mat4Transl> solidMats = new ArrayList<>(List.of(arrowMat, prismMat, octahedronMat, bezierMat, fergusonMat, coonsMat));
+    private final ArrayList<Mat4Transl> solidMats = new ArrayList<>(List.of(arrowMat, prismMat, octahedronMat, bezierMat, fergusonMat, coonsMat, cubeMat));
     private final ArrayList<Mat4RotXYZ> solidSpinMats = new ArrayList<>(List.of(arrowSpinMat, prismSpinMat, octahedronSpinMat));
 
     private Mat4RotXYZ spinningPrismMat = new Mat4RotXYZ(10, 10, 10);
@@ -90,6 +91,7 @@ public class SceneRenderer {
                 + "Select Octahedron: 2<br/>"
                 + "Select Prism: 3<br/>"
                 + "Select bicubic: 4, 5, 6<br/>"
+                + "Select Cube: 7<br/>"
                 + "Exit: ESC <br/>"
                 + "</html>");
         controls.setForeground(new Color(255, 255, 255));
@@ -105,6 +107,7 @@ public class SceneRenderer {
                 Select Octahedron: 2
                 Select Prism: 3
                 Select Bicubic: 4, 5, 6
+                Select Cube: 7
                 Exit: ESC
                 """);
 
@@ -144,6 +147,7 @@ public class SceneRenderer {
                     case KeyEvent.VK_4 -> selectedSolid = 3;
                     case KeyEvent.VK_5 -> selectedSolid = 4;
                     case KeyEvent.VK_6 -> selectedSolid = 5;
+                    case KeyEvent.VK_7 -> selectedSolid = 6;
                     case KeyEvent.VK_V -> isWired = !isWired;
                     case KeyEvent.VK_ESCAPE -> {
                         System.out.println("Goodbye!\n");
@@ -256,8 +260,6 @@ public class SceneRenderer {
         panel.grabFocus();
     }
 
-    // TODO: 13.03.2023 fix twitching while rendering
-    // TODO: 13.03.2023 fix stuttering when close to solid (probably wrong clip)
     public void render() {
         zBuffer.clear();
         renderer.drawScene(scene, camera.getViewMatrix(), new Mat4PerspRH(Math.PI / 2, (double) zBuffer.getColRaster().getHeight() / zBuffer.getColRaster().getWidth(), 0.1, 200));
@@ -320,7 +322,7 @@ public class SceneRenderer {
         scene.clearScene();
         scene.addSolid(axisRGB, new Mat4Scale(2).mul(new Mat4Transl(0, 0, 0)));
 
-        Arrow arrow = new Arrow(isWired);
+        Arrow arrow = new Arrow();
         scene.addSolid(arrow, new Mat4Scale(10).mul(solidMats.get(0)).mul(solidSpinMats.get(0)));
 
         Prism prism = new Prism(isWired);
@@ -335,6 +337,8 @@ public class SceneRenderer {
         scene.addSolid(new BicubicProcessor(Cubic.BEZIER, new Col(0, 255, 0)), new Mat4Scale(5).mul(solidMats.get(3)));
         scene.addSolid(new BicubicProcessor(Cubic.FERGUSON, new Col(255, 0, 0)), new Mat4Scale(5).mul(solidMats.get(4)));
         scene.addSolid(new BicubicProcessor(Cubic.COONS, new Col(0, 0, 255)), new Mat4Scale(10).mul(solidMats.get(5)));
+
+        scene.addSolid(new Cube(isWired), new Mat4Scale(3).mul(solidMats.get(6)));
 
         render();
     }
