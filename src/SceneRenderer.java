@@ -110,7 +110,7 @@ public class SceneRenderer {
         zBuffer = new ZBuffer(img);
         renderer = new Renderer(zBuffer);
 
-        Runnable movement = () -> frame.addKeyListener(new KeyAdapter() {
+        Runnable movement = () -> panel.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 super.keyPressed(e);
@@ -125,7 +125,7 @@ public class SceneRenderer {
             }
         });
 
-        frame.addKeyListener(new KeyAdapter() {
+        panel.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 super.keyPressed(e);
@@ -142,7 +142,7 @@ public class SceneRenderer {
                 }
             }
         });
-        frame.addKeyListener(new KeyAdapter() {
+        panel.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 super.keyPressed(e);
@@ -241,6 +241,9 @@ public class SceneRenderer {
 
         movementThread.start();
         thread.start();
+
+        panel.setFocusable(true);
+        panel.grabFocus();
     }
 
     public void render() {
