@@ -29,7 +29,7 @@ public class SceneRenderer {
     private Renderer renderer;
     private final Scene scene = new Scene();
 
-    Camera camera = new Camera(new Vec3D(-10, 10, 5), 0, 0, 1, true);
+    Camera camera = new Camera(new Vec3D(-10, 2, 3), 0, 0, 1, true);
     private final double CAMERA_SPEED = 0.05;
 
     private Point2D mousePos;
@@ -42,11 +42,18 @@ public class SceneRenderer {
     private final Mat4Transl prismMat = new Mat4Transl(1, 10, 1);
     private final Mat4Transl octahedronMat = new Mat4Transl(1, 10, 8);
 
+    private final Mat4RotXYZ arrowSpinMat = new Mat4RotXYZ(0, 0, 0);
+    private final Mat4RotXYZ prismSpinMat = new Mat4RotXYZ(0, 0, 0);
+    private final Mat4RotXYZ octahedronSpinMat = new Mat4RotXYZ(0, 0, 0);
+
     private int selectedSolid = 1;
     private final ArrayList<Mat4Transl> solidMats = new ArrayList<>(List.of(arrowMat, prismMat, octahedronMat));
+    private final ArrayList<Mat4RotXYZ> solidSpinMats = new ArrayList<>(List.of(arrowSpinMat, prismSpinMat, octahedronSpinMat));
 
     private Mat4RotXYZ spinningPrismMat = new Mat4RotXYZ(10, 10, 10);
     private double gammaRotation = 1;
+
+    private boolean solidMoveSpin = true;
 
     public SceneRenderer(int width, int height) {
         frame = new JFrame();
@@ -123,16 +130,11 @@ public class SceneRenderer {
             public void keyPressed(KeyEvent e) {
                 super.keyPressed(e);
                 switch (e.getKeyCode()) {
+                    case KeyEvent.VK_C -> solidMoveSpin = !solidMoveSpin;
                     case KeyEvent.VK_I -> selectedSolid = 0;
                     case KeyEvent.VK_P -> selectedSolid = 1;
                     case KeyEvent.VK_O -> selectedSolid = 2;
                     case KeyEvent.VK_V -> isWired = !isWired;
-                    case KeyEvent.VK_NUMPAD8 -> solidMats.set(selectedSolid, moveObject(1));
-                    case KeyEvent.VK_NUMPAD6 -> solidMats.set(selectedSolid, moveObject(2));
-                    case KeyEvent.VK_NUMPAD2 -> solidMats.set(selectedSolid, moveObject(3));
-                    case KeyEvent.VK_NUMPAD4 -> solidMats.set(selectedSolid, moveObject(4));
-                    case KeyEvent.VK_NUMPAD9 -> solidMats.set(selectedSolid, moveObject(9));
-                    case KeyEvent.VK_NUMPAD7 -> solidMats.set(selectedSolid, moveObject(7));
                     case KeyEvent.VK_ESCAPE -> {
                         System.out.println("Goodbye!\n");
                         System.exit(0);
@@ -140,6 +142,38 @@ public class SceneRenderer {
                 }
             }
         });
+        frame.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyPressed(e);
+                if (solidMoveSpin) {
+                    switch (e.getKeyCode()) {
+                        case KeyEvent.VK_NUMPAD8 -> solidMats.set(selectedSolid, moveObject(1));
+                        case KeyEvent.VK_NUMPAD6 -> solidMats.set(selectedSolid, moveObject(2));
+                        case KeyEvent.VK_NUMPAD2 -> solidMats.set(selectedSolid, moveObject(3));
+                        case KeyEvent.VK_NUMPAD4 -> solidMats.set(selectedSolid, moveObject(4));
+                        case KeyEvent.VK_NUMPAD9 -> solidMats.set(selectedSolid, moveObject(9));
+                        case KeyEvent.VK_NUMPAD7 -> solidMats.set(selectedSolid, moveObject(7));
+                    }
+                } else {
+                    switch (e.getKeyCode()) {
+                        case KeyEvent.VK_NUMPAD8 -> {
+                            // TODO: 13.03.2023 fix rotation
+                            System.out.println(solidSpinMats.get(1));
+                            System.out.println(solidMats.get(1));
+                            solidSpinMats.set(selectedSolid, spinObject(11));
+                            System.out.println(solidSpinMats.get(1));
+                            System.out.println(solidMats.get(1));
+                        }
+                        case KeyEvent.VK_NUMPAD6 -> solidSpinMats.set(selectedSolid, spinObject(22));
+                        case KeyEvent.VK_NUMPAD2 -> solidSpinMats.set(selectedSolid, spinObject(33));
+                        case KeyEvent.VK_NUMPAD4 -> solidSpinMats.set(selectedSolid, spinObject(44));
+                    }
+                }
+
+            }
+        });
+
 
         panel.addMouseListener(new MouseAdapter() {
             @Override
@@ -217,7 +251,7 @@ public class SceneRenderer {
 
     public Mat4Transl moveObject(int direction) {
         Mat4Transl originalMatrix = solidMats.get(selectedSolid);
-        final double moveSpeed = 0.5;
+        final double moveSpeed = 1;
 
         switch (direction) {
             case 1 -> {
@@ -244,21 +278,44 @@ public class SceneRenderer {
         }
     }
 
+    public Mat4RotXYZ spinObject(int direction) {
+        Mat4RotXYZ originalSpinMatrix = solidSpinMats.get(selectedSolid);
+        final double spinSpeed = 0.5;
+
+        switch (direction) {
+            case 11 -> {
+                return new Mat4RotXYZ(originalSpinMatrix.get(3, 0), originalSpinMatrix.get(3, 1), originalSpinMatrix.get(3, 2) + spinSpeed);
+            }
+            case 22 -> {
+                return new Mat4RotXYZ(originalSpinMatrix.get(3, 0), originalSpinMatrix.get(3, 1) + spinSpeed, originalSpinMatrix.get(3, 2));
+            }
+            case 33 -> {
+                return new Mat4RotXYZ(originalSpinMatrix.get(3, 0) + spinSpeed, originalSpinMatrix.get(3, 1), originalSpinMatrix.get(3, 2));
+            }
+            case 44 -> {
+                return new Mat4RotXYZ(originalSpinMatrix.get(3, 0), originalSpinMatrix.get(3, 1), originalSpinMatrix.get(3, 2) - spinSpeed);
+            }
+            default -> {
+                return new Mat4RotXYZ(0, 0, 0);
+            }
+        }
+    }
+
     public void returnSolids() {
         scene.clearScene();
         scene.addSolid(axisRGB, new Mat4Scale(2).mul(new Mat4Transl(0, 0, 0)));
 
         Arrow arrow = new Arrow(isWired);
-        scene.addSolid(arrow, new Mat4Scale(10).mul(solidMats.get(0)));
+        scene.addSolid(arrow, new Mat4Scale(10).mul(solidMats.get(0)).mul(solidSpinMats.get(0)));
 
         Prism prism = new Prism(isWired);
-        scene.addSolid(prism, new Mat4Scale(10).mul(solidMats.get(1)));
+        scene.addSolid(prism, new Mat4Scale(10).mul(solidMats.get(1)).mul(solidSpinMats.get(1)));
 
         Octahedron octahedron = new Octahedron(isWired);
-        scene.addSolid(octahedron, new Mat4Scale(14).mul(solidMats.get(2)));
+        scene.addSolid(octahedron, new Mat4Scale(14).mul(solidMats.get(2)).mul(solidSpinMats.get(2)));
 
         Prism prismSpin = new Prism(isWired);
-        scene.addSolid(prismSpin, new Mat4Scale(10).mul(new Mat4Transl(0, 0, 0).mul(spinningPrismMat)));
+        scene.addSolid(prismSpin, new Mat4Scale(10).mul(new Mat4Transl(0, 0, 0).add(spinningPrismMat)));
 
         render();
     }
