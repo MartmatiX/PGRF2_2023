@@ -30,7 +30,7 @@ public class SceneRenderer {
     private final Scene scene = new Scene();
 
     Camera camera = new Camera(new Vec3D(-10, 10, 5), 0, 0, 1, true);
-    private final Double CAMERA_SPEED = 1d;
+    private final double CAMERA_SPEED = 0.05;
 
     private Point2D mousePos;
 
@@ -103,7 +103,7 @@ public class SceneRenderer {
         zBuffer = new ZBuffer(img);
         renderer = new Renderer(zBuffer);
 
-        frame.addKeyListener(new KeyAdapter() {
+        Runnable movement = () -> frame.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 super.keyPressed(e);
@@ -114,33 +114,28 @@ public class SceneRenderer {
                     case KeyEvent.VK_D -> camera = camera.right(CAMERA_SPEED);
                     case KeyEvent.VK_E -> camera = camera.forward(CAMERA_SPEED);
                     case KeyEvent.VK_Q -> camera = camera.backward(CAMERA_SPEED);
+                }
+            }
+        });
+
+        frame.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyPressed(e);
+                switch (e.getKeyCode()) {
                     case KeyEvent.VK_I -> selectedSolid = 0;
                     case KeyEvent.VK_P -> selectedSolid = 1;
                     case KeyEvent.VK_O -> selectedSolid = 2;
-                    case KeyEvent.VK_V -> {
-                        isWired = !isWired;
-                    }
+                    case KeyEvent.VK_V -> isWired = !isWired;
+                    case KeyEvent.VK_NUMPAD8 -> solidMats.set(selectedSolid, moveObject(1));
+                    case KeyEvent.VK_NUMPAD6 -> solidMats.set(selectedSolid, moveObject(2));
+                    case KeyEvent.VK_NUMPAD2 -> solidMats.set(selectedSolid, moveObject(3));
+                    case KeyEvent.VK_NUMPAD4 -> solidMats.set(selectedSolid, moveObject(4));
+                    case KeyEvent.VK_NUMPAD9 -> solidMats.set(selectedSolid, moveObject(9));
+                    case KeyEvent.VK_NUMPAD7 -> solidMats.set(selectedSolid, moveObject(7));
                     case KeyEvent.VK_ESCAPE -> {
                         System.out.println("Goodbye!\n");
                         System.exit(0);
-                    }
-                    case KeyEvent.VK_NUMPAD8 -> {
-                        solidMats.set(selectedSolid, moveObject(1));
-                    }
-                    case KeyEvent.VK_NUMPAD6 -> {
-                        solidMats.set(selectedSolid, moveObject(2));
-                    }
-                    case KeyEvent.VK_NUMPAD2 -> {
-                        solidMats.set(selectedSolid, moveObject(3));
-                    }
-                    case KeyEvent.VK_NUMPAD4 -> {
-                        solidMats.set(selectedSolid, moveObject(4));
-                    }
-                    case KeyEvent.VK_NUMPAD9 -> {
-                        solidMats.set(selectedSolid, moveObject(9));
-                    }
-                    case KeyEvent.VK_NUMPAD7 -> {
-                        solidMats.set(selectedSolid, moveObject(7));
                     }
                 }
             }
@@ -183,21 +178,34 @@ public class SceneRenderer {
         render();
 
         Runnable renderSpinningPrism = () -> {
-            spinningPrismMat = new Mat4RotXYZ(spinningPrismMat.get(3, 0), spinningPrismMat.get(3, 1), spinningPrismMat.get(3,2) + gammaRotation);
+            spinningPrismMat = new Mat4RotXYZ(spinningPrismMat.get(3, 0), spinningPrismMat.get(3, 1), spinningPrismMat.get(3, 2) + gammaRotation);
             returnSolids();
         };
 
         Thread thread = new Thread(() -> {
-           while (true){
-               renderSpinningPrism.run();
-               gammaRotation += 0.01;
-               try {
-                   Thread.sleep(1000 / 60);
-               } catch (InterruptedException e) {
-                   throw new RuntimeException(e);
-               }
-           }
+            while (true) {
+                renderSpinningPrism.run();
+                gammaRotation += 0.01;
+                try {
+                    Thread.sleep(1000 / 60);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         });
+
+        Thread movementThread = new Thread(() -> {
+            while (true) {
+                movement.run();
+                try {
+                    Thread.sleep(100000 / 60);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException();
+                }
+            }
+        });
+
+        movementThread.start();
         thread.start();
     }
 
@@ -209,25 +217,26 @@ public class SceneRenderer {
 
     public Mat4Transl moveObject(int direction) {
         Mat4Transl originalMatrix = solidMats.get(selectedSolid);
+        final double moveSpeed = 0.5;
 
         switch (direction) {
             case 1 -> {
-                return new Mat4Transl(originalMatrix.get(3, 0), originalMatrix.get(3, 1), originalMatrix.get(3, 2) + 1);
+                return new Mat4Transl(originalMatrix.get(3, 0), originalMatrix.get(3, 1), originalMatrix.get(3, 2) + moveSpeed);
             }
             case 2 -> {
-                return new Mat4Transl(originalMatrix.get(3, 0), originalMatrix.get(3, 1) - 1, originalMatrix.get(3, 2));
+                return new Mat4Transl(originalMatrix.get(3, 0), originalMatrix.get(3, 1) - moveSpeed, originalMatrix.get(3, 2));
             }
             case 3 -> {
-                return new Mat4Transl(originalMatrix.get(3, 0), originalMatrix.get(3, 1), originalMatrix.get(3, 2) - 1);
+                return new Mat4Transl(originalMatrix.get(3, 0), originalMatrix.get(3, 1), originalMatrix.get(3, 2) - moveSpeed);
             }
             case 4 -> {
-                return new Mat4Transl(originalMatrix.get(3, 0), originalMatrix.get(3, 1) + 1, originalMatrix.get(3, 2));
+                return new Mat4Transl(originalMatrix.get(3, 0), originalMatrix.get(3, 1) + moveSpeed, originalMatrix.get(3, 2));
             }
             case 7 -> {
-                return new Mat4Transl(originalMatrix.get(3, 0) - 1, originalMatrix.get(3, 1), originalMatrix.get(3, 2));
+                return new Mat4Transl(originalMatrix.get(3, 0) - moveSpeed, originalMatrix.get(3, 1), originalMatrix.get(3, 2));
             }
             case 9 -> {
-                return new Mat4Transl(originalMatrix.get(3, 0) + 1, originalMatrix.get(3, 1), originalMatrix.get(3, 2));
+                return new Mat4Transl(originalMatrix.get(3, 0) + moveSpeed, originalMatrix.get(3, 1), originalMatrix.get(3, 2));
             }
             default -> {
                 return new Mat4Transl(0, 0, 0);
@@ -235,7 +244,7 @@ public class SceneRenderer {
         }
     }
 
-    public void returnSolids(){
+    public void returnSolids() {
         scene.clearScene();
         scene.addSolid(axisRGB, new Mat4Scale(2).mul(new Mat4Transl(0, 0, 0)));
 
