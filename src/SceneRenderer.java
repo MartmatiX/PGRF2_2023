@@ -1,5 +1,7 @@
 import objectOps.Renderer;
 import object_data.*;
+import object_data.solids.*;
+import object_data.solids.BicubicProcessor;
 import raster_data.ColorRaster;
 import raster_data.ZBuffer;
 import transforms.*;
@@ -38,16 +40,19 @@ public class SceneRenderer {
 
     private final AxisRGB axisRGB = new AxisRGB();
 
-    private final Mat4Transl arrowMat = new Mat4Transl(1, 1, 1);
-    private final Mat4Transl prismMat = new Mat4Transl(1, 10, 1);
-    private final Mat4Transl octahedronMat = new Mat4Transl(1, 10, 8);
+    private final Mat4Transl arrowMat = new Mat4Transl(1, 1, 1); // 0
+    private final Mat4Transl prismMat = new Mat4Transl(1, 10, 1); // 1
+    private final Mat4Transl octahedronMat = new Mat4Transl(1, 10, 8); // 2
+    private final Mat4Transl bezierMat = new Mat4Transl(0, 10, -3); // 3
+    private final Mat4Transl fergusonMat = new Mat4Transl(0, 0, -3); // 4
+    private final Mat4Transl coonsMat = new Mat4Transl(0, -10, -3); // 5
 
     private final Mat4RotXYZ arrowSpinMat = new Mat4RotXYZ(0, 0, 0);
     private final Mat4RotXYZ prismSpinMat = new Mat4RotXYZ(0, 0, 0);
     private final Mat4RotXYZ octahedronSpinMat = new Mat4RotXYZ(0, 0, 0);
 
     private int selectedSolid = 1;
-    private final ArrayList<Mat4Transl> solidMats = new ArrayList<>(List.of(arrowMat, prismMat, octahedronMat));
+    private final ArrayList<Mat4Transl> solidMats = new ArrayList<>(List.of(arrowMat, prismMat, octahedronMat, bezierMat, fergusonMat, coonsMat));
     private final ArrayList<Mat4RotXYZ> solidSpinMats = new ArrayList<>(List.of(arrowSpinMat, prismSpinMat, octahedronSpinMat));
 
     private Mat4RotXYZ spinningPrismMat = new Mat4RotXYZ(10, 10, 10);
@@ -78,12 +83,13 @@ public class SceneRenderer {
 
         JLabel controls = new JLabel("<html>"
                 + "Movement: WASD QE<br/>"
-                + "Translate solid: 8624 79 <br/>"
+                + "Translate solid: Numpad - 8624 79 <br/>"
                 + "Look around: Left Mouse Button <br/>"
                 + "Wired models: V<br/>"
-                + "Select Arrow: I"
-                + "Select Octahedron: O<br/>"
-                + "Select Prism: P<br/>"
+                + "Select Arrow: 1"
+                + "Select Octahedron: 2<br/>"
+                + "Select Prism: 3<br/>"
+                + "Select bicubic: 4, 5, 6<br/>"
                 + "Exit: ESC <br/>"
                 + "</html>");
         controls.setForeground(new Color(255, 255, 255));
@@ -93,11 +99,12 @@ public class SceneRenderer {
                 Controls:
                 Movement: WASD QE
                 Look around: Left Mouse Button
-                Translate solid: 8624 79
+                Translate solid: Numpad - 8624 79
                 Wired models: V
-                Select Arrow: I
-                Select Octahedron: O
-                Select Prism: P
+                Select Arrow: 1
+                Select Octahedron: 2
+                Select Prism: 3
+                Select Bicubic: 4, 5, 6
                 Exit: ESC
                 """);
 
@@ -131,9 +138,12 @@ public class SceneRenderer {
                 super.keyPressed(e);
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_C -> solidMoveSpin = !solidMoveSpin;
-                    case KeyEvent.VK_I -> selectedSolid = 0;
-                    case KeyEvent.VK_P -> selectedSolid = 1;
-                    case KeyEvent.VK_O -> selectedSolid = 2;
+                    case KeyEvent.VK_1 -> selectedSolid = 0;
+                    case KeyEvent.VK_2 -> selectedSolid = 1;
+                    case KeyEvent.VK_3 -> selectedSolid = 2;
+                    case KeyEvent.VK_4 -> selectedSolid = 3;
+                    case KeyEvent.VK_5 -> selectedSolid = 4;
+                    case KeyEvent.VK_6 -> selectedSolid = 5;
                     case KeyEvent.VK_V -> isWired = !isWired;
                     case KeyEvent.VK_ESCAPE -> {
                         System.out.println("Goodbye!\n");
@@ -246,6 +256,8 @@ public class SceneRenderer {
         panel.grabFocus();
     }
 
+    // TODO: 13.03.2023 fix twitching while rendering
+    // TODO: 13.03.2023 fix stuttering when close to solid (probably wrong clip)
     public void render() {
         zBuffer.clear();
         renderer.drawScene(scene, camera.getViewMatrix(), new Mat4PerspRH(Math.PI / 2, (double) zBuffer.getColRaster().getHeight() / zBuffer.getColRaster().getWidth(), 0.1, 200));
@@ -319,6 +331,10 @@ public class SceneRenderer {
 
         Prism prismSpin = new Prism(isWired);
         scene.addSolid(prismSpin, new Mat4Scale(10).mul(new Mat4Transl(0, 0, 0).add(spinningPrismMat)));
+
+        scene.addSolid(new BicubicProcessor(Cubic.BEZIER, new Col(0, 255, 0)), new Mat4Scale(5).mul(solidMats.get(3)));
+        scene.addSolid(new BicubicProcessor(Cubic.FERGUSON, new Col(255, 0, 0)), new Mat4Scale(5).mul(solidMats.get(4)));
+        scene.addSolid(new BicubicProcessor(Cubic.COONS, new Col(0, 0, 255)), new Mat4Scale(10).mul(solidMats.get(5)));
 
         render();
     }

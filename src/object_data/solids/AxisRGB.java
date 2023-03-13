@@ -1,11 +1,15 @@
-package object_data;
+package object_data.solids;
 
+import object_data.Part;
+import object_data.Solid;
+import object_data.Topology;
+import object_data.Vertex;
 import transforms.Col;
 import transforms.Point3D;
 
 import java.util.List;
 
-public class AxisRGB implements Solid{
+public class AxisRGB implements Solid {
 
     private final List<Vertex> vertices;
     private final List<Integer> indices;
