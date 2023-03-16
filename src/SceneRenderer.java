@@ -48,13 +48,13 @@ public class SceneRenderer {
     private final Mat4Transl coonsMat = new Mat4Transl(0, -10, -3); // 5
     private final Mat4Transl cubeMat = new Mat4Transl(0, -10, 0); // 6
 
-    private final Mat4RotXYZ arrowSpinMat = new Mat4RotXYZ(0, 0, 0);
-    private final Mat4RotXYZ prismSpinMat = new Mat4RotXYZ(0, 0, 0);
-    private final Mat4RotXYZ octahedronSpinMat = new Mat4RotXYZ(0, 0, 0);
+    private final Mat4Rot arrowSpinMat = new Mat4Rot(0, 0, 0, 0);
+    private final Mat4Rot prismSpinMat = new Mat4Rot(0, 0, 0, 0);
+    private final Mat4Rot octahedronSpinMat = new Mat4Rot(0, 0, 0, 0);
 
     private int selectedSolid = 1;
     private final ArrayList<Mat4Transl> solidMats = new ArrayList<>(List.of(arrowMat, prismMat, octahedronMat, bezierMat, fergusonMat, coonsMat, cubeMat));
-    private final ArrayList<Mat4RotXYZ> solidSpinMats = new ArrayList<>(List.of(arrowSpinMat, prismSpinMat, octahedronSpinMat));
+    private final ArrayList<Mat4> solidSpinMats = new ArrayList<>(List.of(arrowSpinMat, prismSpinMat, octahedronSpinMat));
 
     private Mat4RotXYZ spinningPrismMat = new Mat4RotXYZ(10, 10, 10);
     private double gammaRotation = 1;
@@ -82,18 +82,7 @@ public class SceneRenderer {
         };
         panel.setPreferredSize(new Dimension(width, height));
 
-        JLabel controls = new JLabel("<html>"
-                + "Movement: WASD QE<br/>"
-                + "Translate solid: Numpad - 8624 79 <br/>"
-                + "Look around: Left Mouse Button <br/>"
-                + "Wired models: V<br/>"
-                + "Select Arrow: 1"
-                + "Select Octahedron: 2<br/>"
-                + "Select Prism: 3<br/>"
-                + "Select bicubic: 4, 5, 6<br/>"
-                + "Select Cube: 7<br/>"
-                + "Exit: ESC <br/>"
-                + "</html>");
+        JLabel controls = new JLabel("<html>" + "Movement: WASD QE<br/>" + "Translate solid: Numpad - 8624 79 <br/>" + "Switch to rotation mode: C<br/>" + "Rotate around Axis: 8624 79<br/>" + "Look around: Left Mouse Button <br/>" + "Wired models: V<br/>" + "Select Arrow: 1" + "Select Octahedron: 2<br/>" + "Select Prism: 3<br/>" + "Select bicubic: 4, 5, 6<br/>" + "Select Cube: 7<br/>" + "Exit: ESC <br/>" + "</html>");
         controls.setForeground(new Color(255, 255, 255));
         panel.add(controls, BorderLayout.WEST);
 
@@ -102,6 +91,8 @@ public class SceneRenderer {
                 Movement: WASD QE
                 Look around: Left Mouse Button
                 Translate solid: Numpad - 8624 79
+                Switch to rotation mode: C
+                Rotate around Axis: 8624 79
                 Wired models: V
                 Select Arrow: 1
                 Select Octahedron: 2
@@ -171,17 +162,12 @@ public class SceneRenderer {
                     }
                 } else {
                     switch (e.getKeyCode()) {
-                        case KeyEvent.VK_NUMPAD8 -> {
-                            // TODO: 13.03.2023 fix rotation
-                            System.out.println(solidSpinMats.get(1));
-                            System.out.println(solidMats.get(1));
-                            solidSpinMats.set(selectedSolid, spinObject(11));
-                            System.out.println(solidSpinMats.get(1));
-                            System.out.println(solidMats.get(1));
-                        }
-                        case KeyEvent.VK_NUMPAD6 -> solidSpinMats.set(selectedSolid, spinObject(22));
-                        case KeyEvent.VK_NUMPAD2 -> solidSpinMats.set(selectedSolid, spinObject(33));
-                        case KeyEvent.VK_NUMPAD4 -> solidSpinMats.set(selectedSolid, spinObject(44));
+                        case KeyEvent.VK_NUMPAD6 -> solidSpinMats.set(selectedSolid, spinObject(11));
+                        case KeyEvent.VK_NUMPAD4 -> solidSpinMats.set(selectedSolid, spinObject(22));
+                        case KeyEvent.VK_NUMPAD8 -> solidSpinMats.set(selectedSolid, spinObject(33));
+                        case KeyEvent.VK_NUMPAD2 -> solidSpinMats.set(selectedSolid, spinObject(44));
+                        case KeyEvent.VK_NUMPAD7 -> solidSpinMats.set(selectedSolid, spinObject(55));
+                        case KeyEvent.VK_NUMPAD9 -> solidSpinMats.set(selectedSolid, spinObject(66));
                     }
                 }
 
@@ -295,25 +281,31 @@ public class SceneRenderer {
         }
     }
 
-    public Mat4RotXYZ spinObject(int direction) {
-        Mat4RotXYZ originalSpinMatrix = solidSpinMats.get(selectedSolid);
-        final double spinSpeed = 0.5;
+    public Mat4 spinObject(int direction) {
+        Mat4 originalSpinMatrix = solidSpinMats.get(selectedSolid);
+        final double spinSpeed = 0.05;
 
         switch (direction) {
             case 11 -> {
-                return new Mat4RotXYZ(originalSpinMatrix.get(3, 0), originalSpinMatrix.get(3, 1), originalSpinMatrix.get(3, 2) + spinSpeed);
+                return originalSpinMatrix.mul(new Mat4Rot(spinSpeed, 1, 0, 0));
             }
             case 22 -> {
-                return new Mat4RotXYZ(originalSpinMatrix.get(3, 0), originalSpinMatrix.get(3, 1) + spinSpeed, originalSpinMatrix.get(3, 2));
+                return originalSpinMatrix.mul(new Mat4Rot(-spinSpeed, 1, 0, 0));
             }
             case 33 -> {
-                return new Mat4RotXYZ(originalSpinMatrix.get(3, 0) + spinSpeed, originalSpinMatrix.get(3, 1), originalSpinMatrix.get(3, 2));
+                return originalSpinMatrix.mul(new Mat4Rot(spinSpeed, 0, 1, 0));
             }
             case 44 -> {
-                return new Mat4RotXYZ(originalSpinMatrix.get(3, 0), originalSpinMatrix.get(3, 1), originalSpinMatrix.get(3, 2) - spinSpeed);
+                return originalSpinMatrix.mul(new Mat4Rot(-spinSpeed, 0, 1, 0));
+            }
+            case 55 -> {
+                return originalSpinMatrix.mul(new Mat4Rot(spinSpeed, 0, 0, 1));
+            }
+            case 66 -> {
+                return originalSpinMatrix.mul(new Mat4Rot(-spinSpeed, 0, 0, 1));
             }
             default -> {
-                return new Mat4RotXYZ(0, 0, 0);
+                return new Mat4Rot(0, 0, 0, 0);
             }
         }
     }
@@ -334,9 +326,9 @@ public class SceneRenderer {
         Prism prismSpin = new Prism(isWired);
         scene.addSolid(prismSpin, new Mat4Scale(10).mul(new Mat4Transl(0, 0, 0).add(spinningPrismMat)));
 
-        scene.addSolid(new BicubicProcessor(Cubic.BEZIER, new Col(0, 255, 0)), new Mat4Scale(5).mul(solidMats.get(3)));
-        scene.addSolid(new BicubicProcessor(Cubic.FERGUSON, new Col(255, 0, 0)), new Mat4Scale(5).mul(solidMats.get(4)));
-        scene.addSolid(new BicubicProcessor(Cubic.COONS, new Col(0, 0, 255)), new Mat4Scale(10).mul(solidMats.get(5)));
+        scene.addSolid(new BicubicProcessor(Cubic.BEZIER, new Col(0, 255, 255)), new Mat4Scale(5).mul(solidMats.get(3)));
+        scene.addSolid(new BicubicProcessor(Cubic.FERGUSON, new Col(255, 255, 0)), new Mat4Scale(5).mul(solidMats.get(4)));
+        scene.addSolid(new BicubicProcessor(Cubic.COONS, new Col(255, 0, 255)), new Mat4Scale(10).mul(solidMats.get(5)));
 
         scene.addSolid(new Cube(isWired), new Mat4Scale(3).mul(solidMats.get(6)));
 
